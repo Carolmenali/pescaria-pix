@@ -27,7 +27,7 @@ html_game = f"""
         overflow: hidden;
         border-radius: 15px;
         border: 3px solid #005f99;
-        touch-action: manipulation; /* Evita o zoom na tela ao dar toques rápidos no celular */
+        touch-action: manipulation;
     }}
     .fish {{
         position: absolute;
@@ -71,6 +71,19 @@ html_game = f"""
         border-radius: 10px;
         margin-top: 20px;
         box-shadow: 0px 4px 6px rgba(0,0,0,0.2);
+        z-index: 30;
+    }}
+    .balloon {{
+        position: absolute;
+        font-size: 40px;
+        bottom: -50px;
+        animation: floatUp 3s ease-in forwards;
+        z-index: 25;
+    }}
+    @keyframes floatUp {{
+        0% {{ transform: translateY(0) rotate(-5deg); opacity: 1; }}
+        50% {{ transform: translateY(-250px) rotate(5deg); }}
+        100% {{ transform: translateY(-500px) rotate(-5deg); opacity: 0; }}
     }}
 </style>
 </head>
@@ -95,6 +108,20 @@ html_game = f"""
     const maxScore = 30;
     let gameActive = true;
 
+    // Função que cria a chuva de balões na tela de vitória
+    function shootBalloons() {{
+        for(let i=0; i<20; i++) {{
+            let balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            balloon.innerText = '🎈';
+            balloon.style.left = Math.random() * 90 + '%';
+            // Varia a velocidade e o momento que cada balão sobe
+            balloon.style.animationDuration = (Math.random() * 2 + 2) + 's';
+            balloon.style.animationDelay = (Math.random() * 0.5) + 's';
+            winScreen.appendChild(balloon);
+        }}
+    }}
+
     function createFish() {{
         if (!gameActive) return;
 
@@ -103,50 +130,43 @@ html_game = f"""
         fish.innerText = emojis[Math.floor(Math.random() * emojis.length)];
         fish.className = 'fish';
         
-        // Sorteia a altura em que o peixe vai aparecer
         const startY = Math.random() * 280 + 40;
         fish.style.top = startY + 'px';
         
-        // Define se vem da esquerda ou da direita
         const fromLeft = Math.random() > 0.5;
         fish.style.left = fromLeft ? '-70px' : '100%';
-        if (!fromLeft) fish.style.transform = 'scaleX(-1)'; // Vira o peixe de lado
+        if (!fromLeft) fish.style.transform = 'scaleX(-1)'; 
         
         board.appendChild(fish);
 
-        // Define a velocidade (entre 2 e 4 segundos para cruzar a tela)
         const duration = Math.random() * 2000 + 2000; 
         fish.style.transitionDuration = duration + 'ms';
 
-        // Inicia o movimento
         setTimeout(() => {{
             fish.style.left = fromLeft ? '100%' : '-70px';
         }}, 50);
 
-        // O que acontece quando ele toca no peixe
         fish.onpointerdown = function() {{
             if (!gameActive) return;
             score++;
             scoreSpan.innerText = score;
-            fish.remove(); // O peixe some
+            fish.remove(); 
             
             if (score >= maxScore) {{
                 gameActive = false;
-                winScreen.style.display = 'flex'; // Mostra a tela de vitória
+                winScreen.style.display = 'flex'; 
+                shootBalloons(); // Chama os balões quando ele ganha!
             }}
         }};
 
-        // Limpa o peixe da memória se ele fugir e sair da tela
         setTimeout(() => {{
             if (fish.parentNode) fish.remove();
         }}, duration + 100);
 
-        // Agenda o nascimento do próximo peixe
         const nextSpawn = Math.random() * 700 + 300;
         setTimeout(createFish, nextSpawn);
     }}
 
-    // Inicia o jogo soltando os primeiros peixes
     setTimeout(createFish, 500);
     setTimeout(createFish, 1200);
     setTimeout(createFish, 1800);
