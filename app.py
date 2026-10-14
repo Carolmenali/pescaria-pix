@@ -7,7 +7,7 @@ st.title("🎣 Pescaria do Pix!")
 st.write("Toque nos peixes antes que eles fujam da tela!")
 
 # Configuração do WhatsApp
-seu_numero = "5515988320874" 
+seu_numero = "5515" 
 mensagem = "Oi tia! Terminei a pescaria, peguei os 30 peixes! 🎣 Já pode mandar meu Pix de Dia das Crianças! 😎"
 mensagem_codificada = urllib.parse.quote(mensagem)
 link_whatsapp = f"https://wa.me/{seu_numero}?text={mensagem_codificada}"
